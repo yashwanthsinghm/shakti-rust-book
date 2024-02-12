@@ -1,0 +1,6 @@
+
+The **"shakti_rust_hal"** crate has example section which serves code examples related to Shakti processors, and it is open for contributions from the community. This crate focuses on providing illustrative use cases and demonstrations of various functionalities using the Hardware Abstraction Layer (HAL). The HAL is a layer of code that abstracts the low-level details of hardware, making it easier for developers to interact with and utilize the underlying system.
+
+Within this crate, you can find examples covering different peripherals and features, including GPIO (General Purpose Input/Output), UART (Universal Asynchronous Receiver-Transmitter), SPI (Serial Peripheral Interface), and potentially more. These examples showcase how to interface with and control these hardware components using Rust programming language constructs.
+
+The openness to contributions implies that developers from the community can actively participate in enhancing, extending, or fixing issues within the crate. This collaborative approach fosters community-driven development, where individuals with diverse expertise can collectively improve the functionality, reliability, and versatility of the provided examples.

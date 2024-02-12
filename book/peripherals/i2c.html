@@ -1,0 +1,470 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>I2C - Shakti Rust Book</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Hardware.html"><strong aria-hidden="true">1.1.</strong> Hardware</a></li><li class="chapter-item expanded "><a href="../no-std.html"><strong aria-hidden="true">1.2.</strong> no-std</a></li><li class="chapter-item expanded "><a href="../whyrust.html"><strong aria-hidden="true">1.3.</strong> Why Rust in Shakti?</a></li><li class="chapter-item expanded "><a href="../tooling.html"><strong aria-hidden="true">1.4.</strong> tooling</a></li><li class="chapter-item expanded "><a href="../Installation.html"><strong aria-hidden="true">1.5.</strong> Installation</a></li></ol></li><li class="chapter-item expanded "><a href="../peripherals/peripherals.html"><strong aria-hidden="true">2.</strong> Peripherals</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../peripherals/gpio.html"><strong aria-hidden="true">2.1.</strong> GPIO</a></li><li class="chapter-item expanded "><a href="../peripherals/uart.html"><strong aria-hidden="true">2.2.</strong> UART</a></li><li class="chapter-item expanded "><a href="../peripherals/spi.html"><strong aria-hidden="true">2.3.</strong> SPI</a></li><li class="chapter-item expanded "><a href="../peripherals/i2c.html" class="active"><strong aria-hidden="true">2.4.</strong> I2C</a></li><li class="chapter-item expanded "><a href="../peripherals/pwm.html"><strong aria-hidden="true">2.5.</strong> PWM</a></li></ol></li><li class="chapter-item expanded "><a href="../examples/examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../examples/gpio_appls.html"><strong aria-hidden="true">3.1.</strong> GPIO Applications</a></li><li class="chapter-item expanded "><a href="../examples/uart_appls.html"><strong aria-hidden="true">3.2.</strong> UART Applications</a></li><li class="chapter-item expanded "><a href="../examples/spi_appls.html"><strong aria-hidden="true">3.3.</strong> SPI Applications</a></li></ol></li><li class="chapter-item expanded "><a href="../Contributors.html"><strong aria-hidden="true">4.</strong> Contributors</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Shakti Rust Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="i2c"><a class="header" href="#i2c">I2C</a></h1>
+<p><strong>Shakti processors</strong>, which are based on the <strong>RISC-V architecture</strong>, the I2C (Inter-Integrated Circuit) interface is commonly used to connect low-speed devices within embedded systems. The I2C module in Shakti processors typically includes several registers that control and manage the communication on the I2C bus. Here's a general overview of the I2C module for Shakti:</p>
+<h2 id="i2c-registers"><a class="header" href="#i2c-registers">I2C Registers:</a></h2>
+<ul>
+<li>
+<p><strong>Prescale Register</strong> (Prescale - Offset 0x00):
+Size: 8 bits
+Accessible: Read/Write
+Description: Configures the I2C prescaler, which divides the system clock to determine the I2C clock frequency.</p>
+</li>
+<li>
+<p><strong>Control Register</strong> (Control - Offset 0x08):
+Size: 8 bits
+Accessible: Read/Write
+Description: Configures and controls the I2C data transfer. Key bits include:
+<strong>I2C_PIN</strong>: Pending Interrupt Not, Used as a software reset.
+<strong>I2C_ENI</strong>: Enables the external interrupt output.
+<strong>I2C_STA</strong>: Transmits Start condition + Slave address.
+<strong>I2C_STO</strong>: Transmits the stop condition.
+<strong>I2C_ACK</strong>: Acknowledgement bit.</p>
+</li>
+<li>
+<p><strong>Data Shift Register</strong> (Data - Offset 0x10):
+Size: 8 bits
+Accessible: Read/Write
+Description: Holds the data to be transmitted or received during I2C communication.</p>
+</li>
+<li>
+<p><strong>Status Register</strong> (Status - Offset 0x18):
+Size: 8 bits
+Accessible: Read
+Description: Provides the status of I2C data transfer. Key bits include:
+<strong>I2C_INI</strong>: High when I2C communication is in progress.
+<strong>I2C_STS</strong>: Status flag in slave receiver mode for externally generated STOP condition.
+<strong>I2C_BER</strong>: Bus error flag for misplaced START or STOP condition.
+<strong>I2C_AD0/I2C_LRB</strong>: Last Received Bit and Address 0 in slave mode.
+<strong>I2C_AAS</strong>: Addressed As Slave bit.
+<strong>I2C_LAB</strong>: Lost Arbitration Bit.
+<strong>I2C_BB</strong>: Bus Busy bit.</p>
+</li>
+<li>
+<p><strong>Clock Register</strong> (SCL - Offset 0x38):
+Size: 8 bits
+Accessible: Read/Write
+Description: Divides the I2C Prescaler clock to determine the I2C SCL (Serial Clock Line) frequency.</p>
+</li>
+<li>
+<p><strong>General Overview</strong>:</p>
+<ul>
+<li>I2C is used for connecting low-speed devices in embedded systems.</li>
+<li>It facilitates communication between a single master and multiple slave devices.</li>
+<li>Two-wire interface: SDA (Data) and SCL (Clock).</li>
+<li>Each device has a unique address.</li>
+<li>Synchronous communication with master controlling the clock.</li>
+<li>Registers control prescaling, data transfer, status, and clock frequency.</li>
+</ul>
+</li>
+</ul>
+<h3 id="rust-i2c-register-implmentation"><a class="header" href="#rust-i2c-register-implmentation">Rust I2C Register implmentation</a></h3>
+<pre><code>use crate::common::MMIODerefWrapper;
+use riscv::{
+    asm::{delay, nop},
+    register,
+};
+use tock_registers::{
+    interfaces::{Readable, Writeable},
+    register_bitfields, register_structs,
+    registers::{ReadOnly, ReadWrite, WriteOnly},
+};
+
+//--------------------------------------------------------------------------------------------------
+// Private Definitions
+//--------------------------------------------------------------------------------------------------
+
+pub const I2C_OFFSET: usize = 0x0004_0000;
+
+pub const I2C_INI: u8 = 1 &lt;&lt; 7;
+pub const I2C_STS: u8 = 1 &lt;&lt; 5;
+pub const I2C_BER: u8 = 1 &lt;&lt; 4;
+pub const I2C_AD0_LRB: u8 = 1 &lt;&lt; 3;
+pub const I2C_AAS: u8 = 1 &lt;&lt; 2;
+pub const I2C_LAB: u8 = 1 &lt;&lt; 1;
+pub const I2C_BB: u8 = 1 &lt;&lt; 0;
+
+pub const I2C_PIN: u8 = 1 &lt;&lt; 7;
+pub const I2C_ES0: u8 = 1 &lt;&lt; 6;
+pub const I2C_ENI_LRB: u8 = 1 &lt;&lt; 3;
+pub const I2C_STA: u8 = 1 &lt;&lt; 2;
+pub const I2C_STO: u8 = 1 &lt;&lt; 1;
+pub const I2C_ACK: u8 = 1 &lt;&lt; 0;
+
+register_structs! {
+    #[allow(non_snake_case)]
+    pub RegistersBlock{
+        (0x00 =&gt; PRESCALE: ReadWrite&lt;u16&gt;),
+        (0x02 =&gt; _reserved0),
+        (0x08 =&gt; CONTROL: ReadWrite&lt;u8&gt;),
+        (0x09 =&gt; _reserved1),
+        (0x10 =&gt; DATA: ReadWrite&lt;u8&gt;),
+        (0x11 =&gt; _reserved2),
+        (0x18 =&gt; STATUS : ReadWrite&lt;u8&gt;),
+        (0x19 =&gt; _reserved3),
+        (0x38 =&gt; SCL : ReadWrite&lt;u8&gt;),
+        (0x39 =&gt; _reserved4)
+,       (0x3C =&gt; @END),
+    }
+}
+
+register_bitfields! {
+    u32,
+///I2C Prescale Register divides the System clock by (Prescale value + 1). This clock is used as
+///clock input for I2C Serial Clock.
+///I2C Prescaler clock = System Clock / (Prescaler Value + 1)
+    PRESCALE [
+        PRESCALE_VALUE OFFSET(0) NUMBITS(8) []
+    ],
+    ///I2C SCL Register divides the I2C Prescaler clock by (SCL value + 1). This clock is used as
+///I2C SCL clock = I2C Prescaler Clock / (SCL COUNT + 1).
+    SCL[
+        SCL_COUNT OFFSET(0) NUMBITS(8) []
+    ],
+    STATUS [
+///High when I2C communication in progress. Becomes low once I2C
+///communication is complete.
+        I2C_INI OFFSET(7) NUMBITS(1) [],
+   ///     When in slave receiver mode, this flag is asserted when an
+      ///  externally generated STOP condition is detected (used only in
+       /// slave receiver mode).
+        I2C_STS OFFSET(5) NUMBITS(1) [],
+///Bus error; a misplaced START or STOP condition has been
+///detected
+        I2C_BER OFFSET(4) NUMBITS(1) [],
+     /*    AD0(Address 0) - General Call bit used for Broadcast
+        LRB - Last Received Bit through I2C Bus
+        This status bit serves a dual function, and is valid only while
+        PIN = 0:
+        1. LRB holds the value of the last received bit over the
+        I2C-bus while AAS = 0 (not addressed as slave). Normally
+        this will be the value of the slave acknowledgement; thus
+        checking for slave acknowledgement is done via testing of the
+        LRB.
+        2. AD0; when AAS = 1 (‘Addressed As Slave’ condition), the
+        I2C-bus controller has been addressed as a slave. Under this
+        condition, this bit becomes the ‘AD0’ bit and will be set to
+        logic 1 if the slave address received was the ‘general call’
+        (00H) address, or logic 0 if it was the I2C-bus controller’s own
+        slave address.
+        */
+        I2C_AD0_LRB OFFSET(3) NUMBITS(1) [],
+///Addressed As Slave’ bit. Valid only when PIN = 0. When
+///acting as slave receiver, this flag is set when an incoming
+///address over the I2C-bus matches the value in own address
+//register
+        I2C_AAS OFFSET(2) NUMBITS(1) [],
+///Lost Arbitration Bit. This bit is set when, in multi-master
+///operation, arbitration is lost to another master on the I2C-bus
+        I2C_LAB OFFSET(1) NUMBITS(1) [],
+///Bus Busy bit. This is a read-only flag indicating when the
+///I2C-bus is in use. A zero indicates that the bus is busy, and
+///access is not possible
+        I2C_BB OFFSET(0) NUMBITS(1) []
+
+    ],
+
+    CONTROL [
+///Pending Interrupt Not, Used as a software reset. If set to 1, all
+    I2C_PIN OFFSET(7) NUMBITS(1) [],
+   /// Enable Serial Output.
+    ///0 - Registers can be initialized.
+    ///1 - I2C Serial Transmission
+    I2C_ES0 OFFSET(6) NUMBITS(1) [
+        REGISTER_INITIALIZED = 0,
+        I2C_SERIAL_TRANSMISSION = 1,
+    ],
+///Enables the external interrupt output, which is generated when
+///the PIN is active (Low)
+    I2C_ENI OFFSET(3) NUMBITS(1) [],
+///Transmits Start condition + Slave address..
+    I2C_STA OFFSET(2) NUMBITS(1) [],
+///Transmits the stop condition.
+    I2C_STO OFFSET(1) NUMBITS(1) [],
+///Acknowledgement bit.
+///1: I2C automatically sends an acknowledgement after a
+///read/write transaction.
+///0: I2C Master sends Negative Acknowledge to stop the I2C
+///transfer
+    I2C_ACK OFFSET(0) NUMBITS(1) [
+        NAK = 0,
+        ACK = 1,
+    ]
+
+],
+
+
+}
+
+type Registers = MMIODerefWrapper&lt;RegistersBlock&gt;;
+
+pub struct I2CInner {
+    registers: Registers,
+}
+
+</code></pre>
+<p>Rust implementation for interacting with the I2C (Inter-Integrated Circuit) module on Shakti processors.</p>
+<ul>
+<li>
+<p><strong>Constants</strong>:</p>
+<ul>
+<li><strong>I2C_OFFSET</strong>: Specifies the offset address for the I2C module in memory.</li>
+<li>Various constants <strong>(I2C_INI, I2C_STS, etc.)</strong> represent bit positions in status and control registers.</li>
+</ul>
+</li>
+<li>
+<p><strong>Register Structures</strong></p>
+<ul>
+<li><strong>RegistersBlock</strong> : Defines the memory-mapped I2C registers.</li>
+<li><strong>PRESCALE</strong>       : Configures the I2C prescaler for clock frequency.</li>
+<li><strong>CONTROL</strong>        : Configures and controls I2C data transfer.</li>
+<li><strong>DATA</strong>           : Holds data to be transmitted or received.</li>
+<li><strong>STATUS</strong>         : Provides status information about I2C communication.</li>
+<li><strong>SCL</strong>            : Configures the I2C SCL (Serial Clock Line) clock.
+-<strong>Register Bitfields</strong>:</li>
+<li><strong>register_bitfields!</strong> macro defines specific bits within registers.</li>
+<li><strong>PRESCALE</strong>: PRESCALE_VALUE represents the prescaler value.</li>
+<li><strong>SCL</strong>     : SCL_COUNT represents the count for dividing the I2C Prescaler clock.</li>
+<li><strong>STATUS</strong>  : Defines various status bits such as **I2C_INI, I2C_STS, I2C_BER, **etc.</li>
+<li><strong>CONTROL</strong> : Defines control bits such as **I2C_PIN, I2C_ES0, I2C_ENI, **etc.</li>
+</ul>
+</li>
+<li>
+<p><strong>MMIODerefWrapper and Structs</strong>:</p>
+<ul>
+<li><strong>MMIODerefWrapper</strong> : Represents a memory-mapped I/O (MMIO) wrapper for safe interaction with hardware registers.</li>
+<li><strong>Registers</strong>        : A wrapper for the RegistersBlock, ensuring safe access to I2C registers.</li>
+</ul>
+</li>
+<li>
+<p><strong>I2CInner Struct</strong>:</p>
+<ul>
+<li><strong>I2CInner</strong>: A struct encapsulating the I2C module, containing an instance of the Registers wrapper.</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../peripherals/spi.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../peripherals/pwm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../peripherals/spi.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../peripherals/pwm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

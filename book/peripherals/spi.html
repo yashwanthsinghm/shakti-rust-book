@@ -1,0 +1,533 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>SPI - Shakti Rust Book</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Hardware.html"><strong aria-hidden="true">1.1.</strong> Hardware</a></li><li class="chapter-item expanded "><a href="../no-std.html"><strong aria-hidden="true">1.2.</strong> no-std</a></li><li class="chapter-item expanded "><a href="../whyrust.html"><strong aria-hidden="true">1.3.</strong> Why Rust in Shakti?</a></li><li class="chapter-item expanded "><a href="../tooling.html"><strong aria-hidden="true">1.4.</strong> tooling</a></li><li class="chapter-item expanded "><a href="../Installation.html"><strong aria-hidden="true">1.5.</strong> Installation</a></li></ol></li><li class="chapter-item expanded "><a href="../peripherals/peripherals.html"><strong aria-hidden="true">2.</strong> Peripherals</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../peripherals/gpio.html"><strong aria-hidden="true">2.1.</strong> GPIO</a></li><li class="chapter-item expanded "><a href="../peripherals/uart.html"><strong aria-hidden="true">2.2.</strong> UART</a></li><li class="chapter-item expanded "><a href="../peripherals/spi.html" class="active"><strong aria-hidden="true">2.3.</strong> SPI</a></li><li class="chapter-item expanded "><a href="../peripherals/i2c.html"><strong aria-hidden="true">2.4.</strong> I2C</a></li><li class="chapter-item expanded "><a href="../peripherals/pwm.html"><strong aria-hidden="true">2.5.</strong> PWM</a></li></ol></li><li class="chapter-item expanded "><a href="../examples/examples.html"><strong aria-hidden="true">3.</strong> Examples</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../examples/gpio_appls.html"><strong aria-hidden="true">3.1.</strong> GPIO Applications</a></li><li class="chapter-item expanded "><a href="../examples/uart_appls.html"><strong aria-hidden="true">3.2.</strong> UART Applications</a></li><li class="chapter-item expanded "><a href="../examples/spi_appls.html"><strong aria-hidden="true">3.3.</strong> SPI Applications</a></li></ol></li><li class="chapter-item expanded "><a href="../Contributors.html"><strong aria-hidden="true">4.</strong> Contributors</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Shakti Rust Book</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="spi"><a class="header" href="#spi">SPI</a></h1>
+<p>The SPI (Serial Peripheral Interface) is a synchronous serial I/O (Input/Output) port commonly used for communication between microcontrollers and peripheral devices. Here's a breakdown of the SPI registers for a Shakti RISC-V processor:</p>
+<h2 id="spi-registers"><a class="header" href="#spi-registers">SPI Registers</a></h2>
+<ul>
+<li><strong>SPI_CR1 (Offset: 'h00)</strong>   : 32 bits, Read and Write - SPI Control Register 1.</li>
+<li><strong>SPI_CR2 (Offset: 'h04)</strong>   : 32 bits, Read and Write - SPI Control Register 2.</li>
+<li><strong>SPI_SR (Offset: 'h08)</strong>    : 32 bits, Read Only - SPI Status Register.</li>
+<li><strong>SPI_DR1 (Offset: 'h0C)</strong>   : 32 bits, Read and Write - SPI Data Register 1.</li>
+<li><strong>SPI_DR2 (Offset: 'h10)</strong>   : 32 bits, Read and Write - SPI Data Register 2.</li>
+<li><strong>SPI_DR3 (Offset: 'h14)</strong>   : 32 bits, Read and Write - SPI Data Register 3.</li>
+<li><strong>SPI_DR4 (Offset: 'h18)</strong>   : 32 bits, Read and Write - SPI Data Register 4.</li>
+<li><strong>SPI_DR5 (Offset: 'h1C)</strong>   : 32 bits, Read and Write - SPI Data Register 5.</li>
+<li><strong>SPI_CRCPR (Offset: 'h20)</strong> : 32 bits, Reserved - SPI CRC Polynomial Register.</li>
+<li><strong>SPI_RXCRCR (Offset: 'h24)</strong>: 32 bits, Reserved - SPI RX CRC Register.</li>
+<li><strong>SPI_TXCRCR (Offset: 'h28)</strong>: 32 bits, Reserved - SPI TX CRC Register.</li>
+</ul>
+<p>These registers control various aspects of the SPI module, including data transfer, CRC (Cyclic Redundancy Check), and status information. Developers can interact with these registers to configure and manage SPI communication in their applications.</p>
+<h3 id="rust-spi-register-implmentation"><a class="header" href="#rust-spi-register-implmentation">Rust SPI Register implmentation</a></h3>
+<pre><code>
+use riscv::asm::delay;
+use tock_registers::{
+    fields::FieldValue,
+    interfaces::{ReadWriteable, Readable, Writeable},
+    register_bitfields, register_structs,
+    registers::{ReadOnly, ReadWrite, WriteOnly},
+};
+
+use crate::common::MMIODerefWrapper;
+
+use self::SPI_CR1::SPI_TOTAL_BITS_TX;
+
+pub const SPI_OFFSET: usize = 0x0002_0000;
+
+register_bitfields! {
+    u32,
+
+    SPI_CR1 [
+
+        /// Expected Total Number of bits to be received.
+        SPI_TOTAL_BITS_RX OFFSET(24) NUMBITS(8) [
+
+        ],
+
+        /// Total Number of bits to be transmitted.
+        SPI_TOTAL_BITS_TX OFFSET(16) NUMBITS(8) [
+
+        ],
+
+        /// Bidirectional data mode enable. This bit enables
+        /// half-duplex communication using a common single
+        /// bidirectional data line.
+        /// 0: 2-line unidirectional data mode selected
+        /// 1: 1-line unidirectional data mode selected
+        SPI_BIDIMODE OFFSET(15) NUMBITS(1) [
+            OUTPUT_ENABLE = 1,
+            PUTPUT_DISABLE = 0,
+        ],
+
+        /// Output enable in bidirectional mode This bit combined with
+        /// the BIDI-MODE bit selects the direction of transfer in bi-direction mode.
+        /// 0: receive-only mode (Output Disabled)
+        /// 1: transmit-only mode (Output Enabled)
+        SPI_BIDIODE OFFSET(14) NUMBITS(1) [
+            OUTPUT_ENABLE = 1,
+            PUTPUT_DISABLE = 0,
+        ],
+
+
+        /// Hardware CRC calculation Enable.
+        /// 0: CRC calculation disable
+        /// 1: CRC calculation enable
+        SPI_CRCEN OFFSET(13) NUMBITS(1) [
+            HWCRC_ENABLE = 1,
+            HWCRC_DISABLE = 0,
+        ],
+
+        /// Transmit CRC Next.
+        /// 0: Next Transmit value is from Tx buffer
+        /// 1: Next Transmit value is from Rx buffer
+        SPI_CCRCNEXT OFFSET(12) NUMBITS(1) [
+            CRCNEXT_RX = 1,
+            CRCNEXT_TX = 0,
+        ],
+
+        /// CRC Length bit is set and cleared by software to select CRC Length
+        SPI_CRCL OFFSET(11) NUMBITS(1) [
+
+        ],
+
+        /// Receive only mode enabled. This bit enables simplex
+        /// communication using a single unidirectional line to
+        /// receive data exclusively. Keep BIDIMODE bit clear when
+        /// receiving the only mode is active.
+        SPI_RXONLY OFFSET(10) NUMBITS(1) [
+
+        ],
+
+        /// Software Slave Management. When the SSM bit is set,
+        /// the NSS pin input is replaced with the value from the SSI
+        /// bit.
+        /// 0: Software slave management disabled
+        /// 1: Software slave management enabled
+        SPI_SSM OFFSET(9) NUMBITS(1) [
+            SSM_ENABLED  = 1,
+            SSM_DISABLED = 0,
+        ],
+
+        /// Internal Slave Select.This bit has an effect only when the
+        /// SSM bit is set. The value of this bit is forced onto the
+        /// NSS pin and the I/O value of the NSS pin is ignored
+        SPI_SSI OFFSET(8) NUMBITS(1) [
+
+        ],
+
+        /// Frame Format
+        /// 0: data is transmitted/received with the MSB first
+        /// 1: data is transmitted/received with the LSB first
+        /// Note: This bit should not be changed when communication is ongoing
+        SPI_LSBFIRST OFFSET(7) NUMBITS(1) [
+            LSB_FIRST = 1,
+            MSB_FIRST = 0,
+        ],
+
+        /// SPI Enable
+        /// 0: SPI is disabled
+        /// 1: SPI is enabled
+        SPI_SPE OFFSET(6) NUMBITS(1) [
+            ENABLED  = 1,
+            DISABLED = 0,
+        ],
+
+        /// Baud Rate Control
+        /// 000: fCLK/2
+        /// 001: fCLK/4
+        /// 010: fCLK/8
+        /// 011: fCLK/16
+        /// 100: fCLK/32
+        /// 101: fCLK/64
+        /// 110: fCLK/128
+        /// 111: fCLK/256
+        /// Note:This bit should not be changed when communication is ongoing
+        SPI_BR OFFSET(3) NUMBITS(3) [
+
+        ],
+
+        /// Master Selection
+        /// 0: Slave Configuration
+        /// 1: Master Configuration
+        /// Note This bit should not be changed when communication is ongoing
+        SPI_MSTR OFFSET(2) NUMBITS(1) [
+            SLAVE_CONFIG   = 1,
+            MASTER_CONFIG  = 0,
+        ],
+
+        ///Clock Polarity
+        ///0: CLK is 0 when idle
+        ///1: CLK is 1 when idle
+        SPI_CPOL OFFSET(1) NUMBITS(1) [
+            ONE_IDLE   = 1,
+            ZERO_IDLE  = 0,
+        ],
+
+        ///Clock Phase
+        ///0: The first clock transition is the first data capture edge
+        ///1: The second clock transition is the first data capture edge
+        SPI_CPHA OFFSET(0) NUMBITS(1) [
+            SECOND_CLK = 1,
+            FIRST_CLK  = 0,
+        ]
+    ],
+
+    SPI_CR2 [
+        ///SPI_TOTAL_BITS_RX OFFSET(24) NUMBITS(7) [],
+        SPI_RX_IMM_START OFFSET(16) NUMBITS(1) [],
+        SPI_RX_START OFFSET(15) NUMBITS(1) [],
+        SPI_LDMA_TX_START OFFSET(14) NUMBITS(1) [],
+        SPI_LDMA_RX OFFSET(13) NUMBITS(1) [],
+
+        /// FIFO reception threshold is used to set the threshold of
+        /// the RXFIFO that triggers an RXNE event.
+        /// 0: RXNE event is generated if the FIFO level is greater
+        /// than or equal to 1/2 (16-bit)
+        /// 1: RXNE event is generated if the FIFO level is greater
+        /// than or equal to 1/4 (8-bit)
+        SPI_FRXTH OFFSET(12) NUMBITS(1) [],
+
+        /// Reserved bits
+        /// SPI_DS OFFSET(8) NUMBITS(4) [],
+
+        /// Interrupt enable for TXE event.
+        /// 0: TXE interrupt masked
+        /// 1: TXE interrupt is not interrupt masked
+        SPI_TXEIE OFFSET(7) NUMBITS(1) [],
+
+        /// Interrupt enable for RXNE event
+        /// 0: RXNE interrupt masked
+        /// 1: RXNE interrupt is not interrupt masked
+        SPI_RXNEIE OFFSET(6) NUMBITS(1) [
+            RXNE_UNMASKED = 1,
+            RXNE_MASKED = 0,
+        ],
+
+        /// when an error condition occurs.
+        /// 0: Error interrupt masked
+        /// 1: Error interrupt not masked.
+        //Frame Error (Sets when the stopis zero)
+        SPI_ERRIE OFFSET(5) NUMBITS(1) [
+            MASKED_INT   = 1,
+            UNMASKED_INT = 0,
+        ],
+
+        /// Reserved bits
+        /// SPI_FRF OFFSET(4) NUMBITS(1) [],
+        /// SPI_NSSP OFFSET(3) NUMBITS(1) [],
+
+        /// SS output enable
+        /// 0: SS output is disabled in master mode and the SPI interface
+        /// can work in a multi-master configuration
+        /// 1: SS output is enabled in master mode and when the SPI
+        /// interface is enabled. The SPI interface cannot work in a
+        /// multi-master environment.
+        SPI_SSOE OFFSET(2) NUMBITS(1) [
+            SSOE_ENABLED  = 1,
+            SSOE_DISABLED = 0,
+        ],
+
+        // Reserved bits
+        // SPI_TXDMAEN OFFSET(1) NUMBITS(1) [],
+        // SPI_RXDMAEN OFFSET(0) NUMBITS(1) [],
+
+    ],
+
+    SPI_SR[
+
+        SPI_FTLVL OFFSET(11) NUMBITS(2) [],
+        SPI_FRLVL OFFSET(9) NUMBITS(2) [],
+
+        SPI_FRE OFFSET(8) NUMBITS(1) [],
+        SPI_BSY OFFSET(7) NUMBITS(1) [],
+        SPI_OVR OFFSET(6) NUMBITS(1) [],
+
+        SPI_MODF OFFSET(5) NUMBITS(1) [],
+
+        SPI_CRCERR OFFSET(4) NUMBITS(1) [],
+
+        SPI_TXE OFFSET(1) NUMBITS(1) [],
+
+        SPI_RXNE OFFSET(0) NUMBITS(1) []
+
+    ],
+
+    SPI_DR1 [
+        DR1 OFFSET(0) NUMBITS(32) []
+    ],
+
+    SPI_DR2 [
+        DR2 OFFSET(0) NUMBITS(32) []
+    ],
+
+    SPI_DR3 [
+        DR3 OFFSET(0) NUMBITS(32) []
+    ],
+
+    SPI_DR4 [
+        DR4 OFFSET(0) NUMBITS(32) []
+    ],
+
+    SPI_DR5 [
+        DR5 OFFSET(0) NUMBITS(32) []
+    ],
+
+
+}
+
+register_structs! {
+    #[allow(non_snake_case)]
+    pub RegisterBlock{
+        (0x00 =&gt; SPI_CR1: ReadWrite&lt;u32, SPI_CR1::Register&gt;),
+        (0x04 =&gt; SPI_CR2: ReadWrite&lt;u32, SPI_CR2::Register&gt;),
+        (0x08 =&gt; SPI_SR:  ReadOnly &lt;u32, SPI_SR ::Register&gt;),
+        (0x0C =&gt; SPI_DR1: ReadWrite &lt;u32, SPI_DR1::Register&gt;),
+        (0x10 =&gt; SPI_DR2: ReadWrite &lt;u32, SPI_DR2::Register&gt;),
+        (0x14 =&gt; SPI_DR3: ReadWrite &lt;u32, SPI_DR3::Register&gt;),
+        (0x18 =&gt; SPI_DR4: ReadWrite &lt;u32, SPI_DR4::Register&gt;),
+        (0x1C =&gt; SPI_DR5: ReadWrite &lt;u32, SPI_DR5::Register&gt;),
+        (0x20 =&gt; _reserved),
+        (0x2C =&gt; @END),
+    }
+}
+
+/// Abstraction for the associated MMIO registers.
+type Registers = MMIODerefWrapper&lt;RegisterBlock&gt;;
+
+pub struct SPIInner {
+    registers: Registers,
+}
+
+</code></pre>
+<p>The code includes necessary dependencies from tock_registers and defines a constant SPI_OFFSET representing the memory-mapped offset for the SPI module.</p>
+<p><strong>Bitfields Definition</strong>
+The code defines bitfields for various SPI registers <strong>(SPI_CR1, SPI_CR2, SPI_SR, SPI_DR1, SPI_DR2, SPI_DR3, SPI_DR4, SPI_DR5)</strong>. Each register has different bitfields representing configuration options and status flags.</p>
+<p><strong>Register Structures</strong>
+The code uses the register_structs! macro to define the memory-mapped register block for the SPI module. It includes registers like <strong>SPI_CR1, SPI_CR2, SPI_SR, SPI_DR1, SPI_DR2, SPI_DR3, SPI_DR4, and SPI_DR5</strong>. Each register is associated with its offset in memory, and their types are specified based on read or write access and the bitfields defined earlier.</p>
+<p><strong>SPIInner Struct</strong>
+The SPIInner struct is defined to encapsulate the SPI module's registers. It contains a field registers of type <strong>MMIODerefWrapper<RegisterBlock></strong>, providing a convenient way to access the SPI module's registers.</p>
+<p>Overall, the code sets up a structured representation of the SPI module's registers with bitfields and provides an abstraction (SPIInner) for interacting with these registers. It's a common pattern in embedded systems programming to use such abstractions to manage hardware peripherals.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../peripherals/uart.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../peripherals/i2c.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../peripherals/uart.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../peripherals/i2c.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,16 @@
+# Shakti Rust Book  
+by [**`Yashwanth Singh M`** <img src="https://img.icons8.com/ios-glyphs/20/11/github.png"/>](https://github.com/yashwanthsinghm "yashwanthsinghm")
+
+The Shakti processor is an open-source initiative started by **IIT Madras** to produce production-grade processors, complete System on Chips (SoCs), development boards, and a SHAKTI-based software platform. This documentation will provide a Rust SDK using the Shakti **RISC-V** hardware abstraction layer to run secure and memory-safe code on the Shakti family of chips.
+
+# Introduction Shakti 
+
+Introducing the SHAKTI processor, a groundbreaking development in RISC-V architecture by the RISE lab at **IIT Madras**. With a visionary roadmap for diverse market segments, SHAKTI unveils its initial offerings—the E and C-classes. Tailored for IoT, Embedded Systems, and Desktop markets, these processors feature royalty-free and open-source attributes under the BSD3 license.
+
+The E-class, a 32-bit microprocessor, operates seamlessly with versatile RISC-V ISA support. Sporting an in-order 3-stage pipeline and operating at a frequency of under 200MHz on silicon, it competes against ARM's M-class (Cortex-M series) cores. Positioned for applications in low-power computing environments, automotive systems, and IoT, the E-class is capable of running Real-Time Operating Systems (RTOS) like Zephyr OS and FreeRTOS. Explore PINAKA (E32-A35) and PARASHU (E32-A100) in the E-class, designed for smart-cards, motor controls, and home automation.
+
+On the other hand, the C-class, an in-order 6-stage 64-bit microcontroller, supports the entire RISC-V ISA. Targeting mid-range compute systems with a variable frequency range of 200-800MHz, it is customizable for both low-power and high-performance variants, positioning it against ARM's Cortex A35/A55. Operating systems such as Linux, SEL4, and FreeRTOS have been successfully ported and verified with the C-class. Explore VAJRA (C64-A100) in the C-class, a single-chip 64-bit microcontroller aimed at mid-range application workloads in industrial controllers and the Desktop market.
+
+# Rust in Shakti Processor 
+
+Enhancing the capabilities of these processors is the SHAKTI RISC-V HAL, an open-source hardware abstraction layer written in Rust, known as [**Shakti_riscv_hal**](https://github.com/yashwanthsinghm/shakti_riscv_hal). This HAL provides abstraction for all peripherals available in the E-class and C-class, including Vajra, Pinaka, and Parasu, making them more powerful, memory-safe, and leveraging the advantages of the Rust programming language. Rust, renowned for its focus on memory safety and zero-cost abstractions, significantly enhances the security of embedded programming, ensuring robust and reliable applications for SHAKTI processors. As SHAKTI continues to revolutionize applications in low-power, high-performance, and mid-range workloads, these processors, coupled with Rust's secure programming capabilities, pave the way for a new era of computing possibilities.
